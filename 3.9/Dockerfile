@@ -42,6 +42,8 @@ RUN apt-get update \
 
 # https://issues.apache.org/jira/browse/CASSANDRA-11661
 RUN sed -ri 's/^(JVM_PATCH_VERSION)=.*/\1=25/' /etc/cassandra/cassandra-env.sh
+RUN grep -q '^.*-Dcassandra.ignore_rack=true' /etc/cassandra/cassandra-env.sh || echo 'JVM_OPTS="$JVM_OPTS -Dcassandra.ignore_rack=true"' >> /etc/cassandra/cassandra-env.sh
+RUN grep -q '^.*-Dcassandra.ignore_dc=true' /etc/cassandra/cassandra-env.sh || echo 'JVM_OPTS="$JVM_OPTS -Dcassandra.ignore_dc=true"' >> /etc/cassandra/cassandra-env.sh
 
 ENV CASSANDRA_CONFIG /etc/cassandra
 
