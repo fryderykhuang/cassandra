@@ -46,6 +46,13 @@ if [ "$1" = 'cassandra' ]; then
 		batch_size_warn_threshold_in_kb \
 		batch_size_fail_threshold_in_kb \
 		unlogged_batch_across_partitions_warn_threshold \
+		read_request_timeout_in_ms \
+		range_request_timeout_in_ms \
+		write_request_timeout_in_ms \
+		counter_write_request_timeout_in_ms \
+		cas_contention_timeout_in_ms \
+		truncate_request_timeout_in_ms \
+		request_timeout_in_ms \		
 	; do
 		var="CASSANDRA_${yaml^^}"
 		val="${!var}"
