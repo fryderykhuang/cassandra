@@ -52,7 +52,7 @@ if [ "$1" = 'cassandra' ]; then
 		counter_write_request_timeout_in_ms \
 		cas_contention_timeout_in_ms \
 		truncate_request_timeout_in_ms \
-		request_timeout_in_ms \		
+		request_timeout_in_ms \
 	; do
 		var="CASSANDRA_${yaml^^}"
 		val="${!var}"
