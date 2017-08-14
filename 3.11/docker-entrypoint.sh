@@ -40,6 +40,7 @@ if [ "$1" = 'cassandra' ]; then
 		cluster_name \
 		endpoint_snitch \
 		listen_address \
+		listen_on_broadcast_address \
 		num_tokens \
 		rpc_address \
 		start_rpc \
