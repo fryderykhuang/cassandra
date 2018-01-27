@@ -78,7 +78,7 @@ RUN set -ex; \
 			tempDir="$(mktemp -d)"; \
 			for pkg in cassandra cassandra-tools; do \
 				deb="${pkg}_${CASSANDRA_VERSION}_all.deb"; \
-				wget -O "$tempDir/$deb" "http://www.apache.org/dist/cassandra/debian/pool/main/c/cassandra/$deb"; \
+				wget -O "$tempDir/$deb" "https://www.apache.org/dist/cassandra/debian/pool/main/c/cassandra/$deb"; \
 			done; \
 			\
 # create a temporary local APT repo to install from (so that dependency resolution can be handled by APT, as it should be)
@@ -134,8 +134,9 @@ RUN set -ex; \
 RUN grep -q '^.*-Dcassandra.ignore_rack=true' /etc/cassandra/cassandra-env.sh || echo 'JVM_OPTS="$JVM_OPTS -Dcassandra.ignore_rack=true"' >> /etc/cassandra/cassandra-env.sh
 RUN grep -q '^.*-Dcassandra.ignore_dc=true' /etc/cassandra/cassandra-env.sh || echo 'JVM_OPTS="$JVM_OPTS -Dcassandra.ignore_dc=true"' >> /etc/cassandra/cassandra-env.sh
 
-COPY docker-entrypoint.sh /docker-entrypoint.sh
-ENTRYPOINT ["/docker-entrypoint.sh"]
+COPY docker-entrypoint.sh /usr/local/bin/
+RUN ln -s usr/local/bin/docker-entrypoint.sh /docker-entrypoint.sh # backwards compat
+ENTRYPOINT ["docker-entrypoint.sh"]
 
 RUN mkdir -p /var/lib/cassandra "$CASSANDRA_CONFIG" \
 	&& chown -R cassandra:cassandra /var/lib/cassandra "$CASSANDRA_CONFIG" \
