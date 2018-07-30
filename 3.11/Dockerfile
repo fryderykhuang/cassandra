@@ -1,8 +1,26 @@
 # vim:set ft=dockerfile:
-FROM debian:jessie-backports
+FROM debian:stretch-slim
 
 # explicitly set user/group IDs
 RUN groupadd -r cassandra --gid=999 && useradd -r -g cassandra --uid=999 cassandra
+
+RUN set -ex; \
+	apt-get update; \
+	apt-get install -y --no-install-recommends \
+# solves warning: "jemalloc shared library could not be preloaded to speed up memory allocations"
+		libjemalloc1 \
+# free is used by cassandra-env.sh
+		procps \
+# "ip" is not required by Cassandra itself, but is commonly used in scripting Cassandra's configuration (since it is so fixated on explicit IP addresses)
+		iproute2 \
+	; \
+	if ! command -v gpg > /dev/null; then \
+		apt-get install -y --no-install-recommends \
+			dirmngr \
+			gnupg \
+		; \
+	fi; \
+	rm -rf /var/lib/apt/lists/*
 
 # grab gosu for easy step-down from root
 ENV GOSU_VERSION 1.10
@@ -18,16 +36,6 @@ RUN set -x \
 	&& gosu nobody true \
 	&& apt-get purge -y --auto-remove ca-certificates wget
 
-# solves warning: "jemalloc shared library could not be preloaded to speed up memory allocations"
-RUN apt-get update && apt-get install -y --no-install-recommends libjemalloc1 && rm -rf /var/lib/apt/lists/*
-
-# https://github.com/docker-library/cassandra/pull/98#issuecomment-280761137
-RUN { \
-		echo 'Package: openjdk-* ca-certificates-java'; \
-		echo 'Pin: release n=*-backports'; \
-		echo 'Pin-Priority: 990'; \
-	} > /etc/apt/preferences.d/java-backports
-
 # https://wiki.apache.org/cassandra/DebianPackaging#Adding_Repository_Keys
 ENV GPG_KEYS \
 # gpg: key 0353B12C: public key "T Jake Luciani <jake@apache.org>" imported
@@ -40,12 +48,16 @@ RUN set -ex; \
 		gpg --keyserver ha.pool.sks-keyservers.net --recv-keys "$key"; \
 	done; \
 	gpg --export $GPG_KEYS > /etc/apt/trusted.gpg.d/cassandra.gpg; \
-	rm -r "$GNUPGHOME"; \
+	rm -rf "$GNUPGHOME"; \
 	apt-key list
 
-ENV CASSANDRA_VERSION 3.11.1
+ENV CASSANDRA_VERSION 3.11.2
 
 RUN set -ex; \
+	\
+# https://bugs.debian.org/877677
+# update-alternatives: error: error creating symbolic link '/usr/share/man/man1/rmid.1.gz.dpkg-tmp': No such file or directory
+	mkdir -p /usr/share/man/man1/; \
 	\
 	dpkgArch="$(dpkg --print-architecture)"; \
 	case "$dpkgArch" in \
