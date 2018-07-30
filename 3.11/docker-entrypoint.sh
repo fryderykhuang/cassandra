@@ -67,6 +67,7 @@ if [ "$1" = 'cassandra' ]; then
 		cas_contention_timeout_in_ms \
 		truncate_request_timeout_in_ms \
 		request_timeout_in_ms \
+		key_cache_size_in_mb \
 	; do
 		var="CASSANDRA_${yaml^^}"
 		val="${!var}"
