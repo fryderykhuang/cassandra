@@ -81,6 +81,7 @@ if [ "$1" = 'cassandra' ]; then
 		request_timeout_in_ms \
 		key_cache_size_in_mb \
 		tombstone_failure_threshold \
+		partitioner \
 	; do
 		var="CASSANDRA_${yaml^^}"
 		val="${!var}"
